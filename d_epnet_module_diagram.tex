@@ -1,0 +1,110 @@
+% Requires in the paper preamble:
+% \usepackage{tikz}
+% \usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds}
+% Then insert this figure with:
+% \input{d_epnet_module_diagram.tex}
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\small,
+    >=Latex,
+    line width=0.9pt,
+    node distance=8mm and 8mm,
+    io/.style={draw, rounded corners=2pt, fill=blue!8, align=center, minimum width=20mm, minimum height=8mm},
+    proc/.style={draw, rounded corners=2pt, fill=green!10, align=center, minimum width=27mm, minimum height=10mm},
+    memory/.style={draw, rounded corners=2pt, fill=orange!12, align=center, minimum width=24mm, minimum height=9mm},
+    update/.style={draw, rounded corners=2pt, fill=purple!10, align=center, minimum width=24mm, minimum height=9mm},
+    aux/.style={draw, rounded corners=2pt, fill=gray!12, align=center, minimum width=21mm, minimum height=8mm},
+    title/.style={font=\bfseries\small},
+    note/.style={font=\scriptsize, align=center},
+    panel/.style={draw, rounded corners=4pt, dashed, inner sep=6mm},
+    flow/.style={->, thick},
+    skip/.style={->, thick, dashed}
+]
+
+% ---------------- Left panel: outer iterations ----------------
+\node[title] (ltitle) at (-4.6, 4.3) {Outer iterative process};
+
+\node[io] (input) at (-4.6, 3.2) {$\mathbf{H},\,\mathbf{y},\,\sigma_n^2$};
+\node[proc, below=7mm of input] (prep) {Graph preprocessing\\$\Gamma(\mathbf{H},\mathbf{y})$};
+\node[note, left=2mm of prep.west, anchor=east] (prepout) {$\mathbf{S}^{(0)},\,\mathbf{L}$};
+
+\node[proc, below=9mm of prep] (iter1) {Iteration $t=1$\\EP + DIFFormer-GRU};
+\node[proc, below=7mm of iter1] (iter2) {Iteration $t=2$\\EP + DIFFormer-GRU};
+\node[note, below=2mm of iter2] (dots) {$\vdots$};
+\node[proc, below=8mm of dots] (iterT) {Iteration $t=T$\\EP + DIFFormer-GRU};
+\node[update, below=9mm of iterT] (slice) {Nearest-neighbor\\slicing};
+\node[io, below=7mm of slice] (xhat) {$\hat{\mathbf{x}}$};
+
+\draw[flow] (input) -- (prep);
+\draw[flow] (prep) -- (iter1);
+\draw[flow] (iter1) -- node[right, note] {$\bm{\Lambda}^{(1)},\bm{\gamma}^{(1)}$} (iter2);
+\draw[flow] (iter2) -- (dots);
+\draw[flow] (dots) -- (iterT);
+\draw[flow] (iterT) -- node[right, note] {$\hat{\mathbf{x}}^{(T)}$} (slice);
+\draw[flow] (slice) -- (xhat);
+
+\draw[skip] ($(iter2.east)+(4mm,0)$) to[out=0, in=0, looseness=1.25]
+    node[right, note, xshift=3mm] {state reuse\\$\mathbf{R}_{\mathrm{gru}}^{(t)},\,\mathbf{G}^{(t)}$}
+    ($(iter1.east)+(4mm,0)$);
+
+\node[panel, fit=(input)(xhat)(ltitle)] {};
+
+% ---------------- Right panel: one iteration ----------------
+\node[title] (rtitle) at (5.8, 4.3) {Information flow inside iteration $t$};
+
+\node[io] (s0) at (1.8, 3.2) {$\mathbf{S}^{(0)}$};
+\node[memory, right=8mm of s0] (reuse) {$\mathbf{R}_{\mathrm{gru}}^{(t-1)}$};
+\node[proc, right=8mm of reuse] (init) {Iterative feature\\initialization};
+\node[note, above=1mm of init] {$t=1:\ \mathrm{FC}_{\mathrm{in}}(\mathbf{S}^{(0)})\qquad t>1:\ \mathbf{R}_{\mathrm{gru}}^{(t-1)}$};
+\node[proc, right=8mm of init] (premlp) {Pre-MLP\\fc2a/fc2b/fc2c};
+\node[proc, right=9mm of premlp] (dif) {DIFFormer\\attention + graph aggregation};
+\node[io, above=10mm of dif] (graph) {$\mathbf{L}$};
+
+\node[io] (epin) at (1.5, 1.0) {$\bm{\Lambda}^{(t-1)},\,\bm{\gamma}^{(t-1)}$};
+\node[proc, right=9mm of epin] (ep) {EP observation\\module};
+\node[aux, right=9mm of ep] (cav) {$\mathbf{a}_{\mathrm{cav}}^{(t)},\,\mathbf{v}_{\mathrm{cav}}^{(t)}$};
+\node[proc, below=12mm of dif] (concat) {Concatenate\\$\mathbf{m}^{(t)}$, $\mathbf{a}_{\mathrm{cav}}^{(t)}$, $\mathbf{v}_{\mathrm{cav}}^{(t)}$};
+\node[memory, left=10mm of concat] (gruold) {$\mathbf{G}^{(t-1)}$};
+\node[proc, right=8mm of concat] (gru) {GRU state\\update};
+\node[update, right=8mm of gru] (readgru) {$\mathbf{R}_{\mathrm{gru}}^{(t)}$};
+\node[memory, below=8mm of readgru] (grunew) {$\mathbf{G}^{(t)}$};
+
+\node[proc, below=12mm of concat] (readout) {Readout MLP\\fc3a/fc3b/fc3c};
+\node[aux, right=9mm of readout] (logits) {$\mathbf{o}^{(t)}$};
+\node[proc, right=9mm of logits] (softmax) {Softmax + moments\\$\hat{\mathbf{x}}^{(t)},\,\hat{\mathbf{V}}^{(t)}$};
+\node[update, above=12mm of softmax] (epup) {EP site update\\$\bm{\Lambda}^{(t)},\,\bm{\gamma}^{(t)}$};
+
+\draw[flow] (s0) -- (init);
+\draw[flow] (reuse) -- (init);
+\draw[flow] (init) -- (premlp);
+\draw[flow] (premlp) -- (dif);
+\draw[flow] (graph) -- (dif);
+
+\draw[flow] (epin) -- (ep);
+\draw[flow] (ep) -- (cav);
+\draw[flow] (cav) |- (concat);
+\draw[flow] (dif) -- node[right, note] {$\mathbf{m}^{(t)}$} (concat);
+\draw[flow] (gruold) -- (gru);
+\draw[flow] (concat) -- (gru);
+\draw[flow] (gru) -- (readgru);
+\draw[flow] (gru) -- (grunew);
+
+\draw[flow] (readgru) |- (readout);
+\draw[flow] (readout) -- (logits);
+\draw[flow] (logits) -- (softmax);
+\draw[flow] (softmax) -- (epup);
+\draw[flow] (epup) -| (epin);
+
+\draw[skip] (readgru.north) to[out=110, in=20] node[above, note] {used in iteration $t+1$} (reuse.north);
+\draw[skip] (grunew.south) to[out=-110, in=-70, looseness=1.1] node[below, note] {hidden state reuse} ($(gruold.south)+(0,-1mm)$);
+
+\node[panel, fit=(s0)(epup)(rtitle)(grunew)] {};
+
+\end{tikzpicture}%
+}
+\caption{Module diagram of the proposed D-EPNet detector. The left panel shows the outer iterative process from graph preprocessing to the final hard decision. The right panel details the information flow within one iteration: EP computes cavity statistics, DIFFormer performs graph-aware interaction modeling, the GRU updates recurrent states, and the readout network produces symbol logits that are used to refine the EP site parameters for the next iteration.}
+\label{fig:depnet_module_diagram}
+\end{figure*}
