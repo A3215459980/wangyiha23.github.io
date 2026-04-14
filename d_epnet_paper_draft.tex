@@ -1,0 +1,568 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{bm}
+\usepackage{url}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{D-EPNet: An EP-DIFFormer Detector for Massive MIMO}
+
+\author{
+\IEEEauthorblockN{Author Name}
+\IEEEauthorblockA{
+Affiliation \\
+City, Country \\
+email@domain.com
+}
+}
+
+\maketitle
+
+\begin{abstract}
+This paper presents D-EPNet, a model-driven detector for uplink massive multiple-input multiple-output (MIMO) systems. The proposed method combines expectation propagation (EP) with a DIFFormer-based graph refinement network. In each iteration, EP produces symbol-wise Gaussian cavity statistics, and a neural refinement module further exploits channel-induced symbol coupling through linear-time diffusion attention, graph aggregation, and gated recurrent state updates. Compared with a conventional EP detector, the proposed architecture preserves the probabilistic inference structure while introducing a more expressive interaction model for symbol refinement. The resulting detector outputs symbol logits over the pulse-amplitude modulation alphabet and is trained by cross-entropy loss.
+\end{abstract}
+
+\begin{IEEEkeywords}
+massive MIMO, expectation propagation, DIFFormer, graph neural network, signal detection
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+Massive MIMO detection can be formulated as an inference problem over a high-dimensional discrete symbol vector. Classical model-based algorithms exploit the linear system structure, whereas neural detectors can learn complicated interference patterns from data. The implementation provided in this work adopts a hybrid strategy: an EP module produces tractable Gaussian cavity distributions, and a DIFFormer-based graph network refines these beliefs by using both graph-aware propagation and global interaction modeling.
+
+It is worth noting that the Python wrapper keeps the legacy class name \texttt{ChebNet} for compatibility, but the actual neural refinement module is no longer a Chebyshev graph network. Instead, the current implementation uses the class \texttt{sp\_GNN\_Difformer}, whose core message-passing block is \texttt{DIFFormer\_v2}. The following description is written according to the current code rather than the older Chebyshev-based formulation.
+
+\section{System Model}
+
+Consider an uplink massive MIMO system with $N_t$ single-antenna users and a base station equipped with $N_r$ receive antennas. Let $\mathbf{x}_c \in \mathbb{C}^{N_t}$ denote the transmitted symbol vector and let $\mathbf{y}_c \in \mathbb{C}^{N_r}$ denote the received signal vector. The complex baseband model is
+\begin{equation}
+\mathbf{y}_c = \mathbf{H}_c \mathbf{x}_c + \mathbf{n}_c,
+\label{eq:complex_model}
+\end{equation}
+where $\mathbf{H}_c \in \mathbb{C}^{N_r \times N_t}$ is the channel matrix and $\mathbf{n}_c \sim \mathcal{CN}(\mathbf{0}, \sigma_c^2 \mathbf{I})$ is additive white Gaussian noise.
+
+Following the implementation, we convert \eqref{eq:complex_model} into an equivalent real-valued model:
+\begin{equation}
+\mathbf{y}=
+\begin{bmatrix}
+\Re(\mathbf{y}_c)\\
+\Im(\mathbf{y}_c)
+\end{bmatrix},\quad
+\mathbf{x}=
+\begin{bmatrix}
+\Re(\mathbf{x}_c)\\
+\Im(\mathbf{x}_c)
+\end{bmatrix},\quad
+\mathbf{n}=
+\begin{bmatrix}
+\Re(\mathbf{n}_c)\\
+\Im(\mathbf{n}_c)
+\end{bmatrix},
+\end{equation}
+\begin{equation}
+\mathbf{H}=
+\begin{bmatrix}
+\Re(\mathbf{H}_c) & -\Im(\mathbf{H}_c)\\
+\Im(\mathbf{H}_c) & \Re(\mathbf{H}_c)
+\end{bmatrix}.
+\end{equation}
+The resulting system is
+\begin{equation}
+\mathbf{y} = \mathbf{H}\mathbf{x} + \mathbf{n},
+\label{eq:real_model}
+\end{equation}
+where $\mathbf{H}\in\mathbb{R}^{N\times K}$ with $N=2N_r$, $K=2N_t$, and $\mathbf{n}\sim \mathcal{N}(\mathbf{0}, \sigma_n^2 \mathbf{I})$ with $\sigma_n^2=\sigma_c^2/2$.
+
+For $4^k$-QAM modulation, each real-valued symbol belongs to the $2^k$-PAM alphabet
+\begin{equation}
+\mathcal{X} = \{\pm 1, \pm 3, \ldots, \pm (2^k-1)\}.
+\label{eq:alphabet}
+\end{equation}
+Hence, detection can be viewed as estimating $\mathbf{x}\in\mathcal{X}^K$ from $\mathbf{y}$ and $\mathbf{H}$, or equivalently as a $|\mathcal{X}|$-class classification problem for each entry of $\mathbf{x}$.
+
+The Bayesian posterior can be written as
+\begin{equation}
+p(\mathbf{x}|\mathbf{y},\mathbf{H})
+\propto
+\exp\!\left(
+-\frac{1}{2\sigma_n^2}\|\mathbf{y}-\mathbf{H}\mathbf{x}\|_2^2
+\right)
+\prod_{k=1}^{K} p(x_k),
+\label{eq:posterior}
+\end{equation}
+where $p(x_k)$ is uniform over $\mathcal{X}$.
+
+\subsection{Graph Preprocessing}
+
+The training script first generates a graph-oriented preprocessing output through
+\begin{equation}
+(\mathbf{L}_{\mathrm{cep}}, \hat{\mathbf{y}}, \alpha) = \Gamma(\mathbf{H}, \mathbf{y}),
+\label{eq:preprocess}
+\end{equation}
+which corresponds to the function \texttt{sp\_GNN\_data(H, y)} in the code. Here, $\mathbf{L}_{\mathrm{cep}}\in\mathbb{R}^{K\times K}$ is a dense symbol-interaction matrix, $\hat{\mathbf{y}}\in\mathbb{R}^K$ is a node-wise observation statistic, and $\alpha$ is a channel-dependent scaling factor.
+
+For the $k$-th symbol, the initial node feature used by the neural module is
+\begin{equation}
+\mathbf{s}_k^{(0)}=
+\left[
+\hat{y}_k,\;
+\alpha \sigma_n \mathbf{h}_k^T\mathbf{1}
+\right]^T,
+\label{eq:init_feature}
+\end{equation}
+where $\mathbf{h}_k$ is the $k$-th column of $\mathbf{H}$ and $\mathbf{1}$ is the all-ones vector. Stacking all node features yields
+\begin{equation}
+\mathbf{S}^{(0)}=
+[\mathbf{s}_1^{(0)},\mathbf{s}_2^{(0)},\ldots,\mathbf{s}_K^{(0)}]^T
+\in\mathbb{R}^{K\times 2}.
+\end{equation}
+
+The code supports two graph construction modes:
+\begin{equation}
+\mathbf{L} =
+\begin{cases}
+\mathbf{L}_{\mathrm{cep}}, & \texttt{graph\_mode = cep\_l},\\
+\mathbf{L}_{\mathrm{corr}}, & \texttt{graph\_mode = channel\_corr},
+\end{cases}
+\label{eq:graph_mode}
+\end{equation}
+where $\mathbf{L}_{\mathrm{corr}}$ is a row-normalized channel-correlation graph generated from $\mathbf{H}$ with the diagonal removed. During neural processing, the dense matrix $\mathbf{L}$ is converted to sparse edge indices and edge weights by extracting all nonzero entries, which matches the implementation of \texttt{dense\_batch\_to\_sparse()}.
+
+\section{The Proposed D-EPNet Detector}
+
+\subsection{Overall Iterative Structure}
+
+The proposed detector combines an EP module and a DIFFormer-GRU refinement module. Let $T$ denote the total number of EP iterations. In the code, this number is controlled by \texttt{ep\_iter}, while the damping factor is denoted by \texttt{ep\_beta}. For each iteration $t=1,2,\ldots,T$, the detector performs:
+\begin{enumerate}
+\item EP-based Gaussian approximation and cavity-statistic extraction;
+\item graph neural refinement using DIFFormer and a recurrent hidden state;
+\item posterior classification over the alphabet $\mathcal{X}$ and EP site update.
+\end{enumerate}
+
+The outer loop is implemented in the \texttt{ChebNet.forward()} function:
+\begin{equation}
+\big(a_{\mathrm{cav}}^{(t)}, v_{\mathrm{cav}}^{(t)}, \bm{\Lambda}^{(t)}, \bm{\gamma}^{(t)}\big)
+=
+\mathrm{EP}\!\left(
+\mathbf{H}, \mathbf{y}, \sigma_n^2,
+\bm{\Lambda}^{(t-1)}, \bm{\gamma}^{(t-1)},
+\mathbf{p}^{(t-1)}
+\right),
+\end{equation}
+followed by
+\begin{equation}
+\big(\mathbf{p}^{(t)}, \mathbf{R}_{\mathrm{gru}}^{(t)}, \mathbf{G}^{(t)}\big)
+=
+\Phi_{\mathrm{DIF}}\!\left(
+\mathbf{S}^{(0)}, \mathbf{L}, \sigma_n^2,
+a_{\mathrm{cav}}^{(t)}, v_{\mathrm{cav}}^{(t)},
+\mathbf{R}_{\mathrm{gru}}^{(t-1)}, \mathbf{G}^{(t-1)}
+\right),
+\label{eq:overall_phi}
+\end{equation}
+where $\mathbf{p}^{(t)}$ denotes the symbol logits generated by the DIFFormer-based refinement network, $\mathbf{R}_{\mathrm{gru}}^{(t)}$ is the feature tensor fed to the next iteration, and $\mathbf{G}^{(t)}$ is the recurrent hidden state.
+
+\subsection{EP Observation Module}
+
+EP approximates the discrete prior in \eqref{eq:posterior} by a Gaussian site function. At iteration $t$, the approximate posterior is
+\begin{equation}
+q^{(t)}(\mathbf{x}|\mathbf{y})
+\propto
+p(\mathbf{y}|\mathbf{x})\chi^{(t)}(\mathbf{x}),
+\label{eq:q_t}
+\end{equation}
+with
+\begin{equation}
+\chi^{(t)}(\mathbf{x})
+\propto
+\mathcal{N}
+\left(
+\mathbf{x}:
+(\bm{\Lambda}^{(t-1)})^{-1}\bm{\gamma}^{(t-1)},
+(\bm{\Lambda}^{(t-1)})^{-1}
+\right),
+\label{eq:site_function}
+\end{equation}
+where
+\begin{equation}
+\bm{\Lambda}^{(t-1)} = \mathrm{diag}(\lambda_1^{(t-1)},\ldots,\lambda_K^{(t-1)})
+\end{equation}
+and
+\begin{equation}
+\bm{\gamma}^{(t-1)} = [\gamma_1^{(t-1)},\ldots,\gamma_K^{(t-1)}]^T.
+\end{equation}
+The implementation initializes
+\begin{equation}
+\bm{\gamma}^{(0)}=\mathbf{0},
+\qquad
+\bm{\Lambda}^{(0)}=\frac{3}{4^k-1}\mathbf{I},
+\label{eq:init_ep}
+\end{equation}
+which matches the code line
+\texttt{lamda = 3.0 / (4\string**k - 1)}.
+
+The Gaussian approximation can be written as
+\begin{equation}
+q^{(t)}(\mathbf{x}|\mathbf{y})
+=
+\mathcal{N}
+(\mathbf{x}:\bm{\mu}^{(t)},\bm{\Sigma}^{(t)}),
+\end{equation}
+where
+\begin{equation}
+\bm{\Sigma}^{(t)}=
+\left(
+\sigma_n^{-2}\mathbf{H}^T\mathbf{H}
++
+\bm{\Lambda}^{(t-1)}
+\right)^{-1},
+\label{eq:sigma_t}
+\end{equation}
+\begin{equation}
+\bm{\mu}^{(t)}=
+\bm{\Sigma}^{(t)}
+\left(
+\sigma_n^{-2}\mathbf{H}^T\mathbf{y}
++
+\bm{\gamma}^{(t-1)}
+\right).
+\label{eq:mu_t}
+\end{equation}
+
+Let $\mu_k^{(t)}$ and $\Sigma_k^{(t)}$ denote the $k$-th mean and diagonal variance, respectively. The symbol-wise cavity distribution is
+\begin{equation}
+v_{\mathrm{cav},k}^{(t)}
+=
+\frac{\Sigma_k^{(t)}}
+{1-\Sigma_k^{(t)}\lambda_k^{(t-1)}},
+\label{eq:vcav}
+\end{equation}
+\begin{equation}
+a_{\mathrm{cav},k}^{(t)}
+=
+v_{\mathrm{cav},k}^{(t)}
+\left(
+\frac{\mu_k^{(t)}}{\Sigma_k^{(t)}}-\gamma_k^{(t-1)}
+\right),
+\label{eq:acav}
+\end{equation}
+which gives
+\begin{equation}
+q_{\backslash k}^{(t)}(x_k)
+=
+\mathcal{N}
+\!\left(
+x_k:
+a_{\mathrm{cav},k}^{(t)},
+v_{\mathrm{cav},k}^{(t)}
+\right).
+\label{eq:cavity}
+\end{equation}
+
+In the implementation, these cavity statistics are returned as \texttt{mean\_ab} and \texttt{var\_ab}, and they are then passed to the neural refinement block instead of being used alone.
+
+\subsection{DIFFormer-GRU Refinement Module}
+
+\subsubsection{Iterative Feature Initialization}
+
+The network \texttt{sp\_GNN\_Difformer} does not rebuild node embeddings from scratch at every iteration. Instead, the initial node feature at iteration $t$ is
+\begin{equation}
+\mathbf{U}^{(t)}=
+\begin{cases}
+\mathrm{FC}_{\mathrm{in}}\!\left(\mathbf{S}^{(0)}\right), & t=1,\\
+\mathbf{R}_{\mathrm{gru}}^{(t-1)}, & t>1,
+\end{cases}
+\label{eq:iterative_init}
+\end{equation}
+where $\mathrm{FC}_{\mathrm{in}}(\cdot)$ is the linear layer \texttt{fc1a}. Thus, the first iteration uses the handcrafted preprocessing feature, while later iterations reuse the recurrent readout from the previous step.
+
+This tensor is then processed by a three-layer multilayer perceptron:
+\begin{equation}
+\mathbf{F}^{(t)}=
+\rho\!\left(
+\mathbf{W}_{2c}
+\rho\!\left(
+\mathcal{D}
+\left(
+\mathbf{W}_{2b}
+\rho\!\left(
+\mathcal{D}
+\left(
+\mathbf{W}_{2a}\mathbf{U}^{(t)}
+\right)
+\right)
+\right)
+\right)
+\right),
+\label{eq:mlp_pre}
+\end{equation}
+where $\rho(\cdot)$ denotes ReLU and $\mathcal{D}(\cdot)$ denotes dropout. This matches the layers \texttt{fc2a}, \texttt{fc2b}, and \texttt{fc2c} in the code.
+
+\subsubsection{DIFFormer Block}
+
+The processed feature matrix $\mathbf{F}^{(t)}$ is flattened across the batch dimension, while the graph matrix $\mathbf{L}$ is converted into sparse edges $(\mathcal{E}, \mathbf{w})$. The DIFFormer first applies an input projection:
+\begin{equation}
+\mathbf{X}^{(0)}=
+\mathcal{D}
+\left(
+\rho
+\left(
+\mathrm{LN}\!\left(
+\mathbf{W}_{\mathrm{in}}\mathbf{F}^{(t)}
+\right)
+\right)
+\right),
+\label{eq:input_proj}
+\end{equation}
+where $\mathrm{LN}(\cdot)$ is LayerNorm.
+
+For the $\ell$-th DIFFormer layer and the $h$-th attention head, query, key, and value vectors are
+\begin{equation}
+\mathbf{q}_{i,h}^{(\ell)} = \mathbf{W}_{Q,h}^{(\ell)}\mathbf{x}_i^{(\ell)},
+\quad
+\mathbf{k}_{i,h}^{(\ell)} = \mathbf{W}_{K,h}^{(\ell)}\mathbf{x}_i^{(\ell)},
+\quad
+\mathbf{v}_{i,h}^{(\ell)} = \mathbf{W}_{V,h}^{(\ell)}\mathbf{x}_i^{(\ell)}.
+\label{eq:qkv}
+\end{equation}
+The code uses the \texttt{simple} kernel, which first performs $\ell_2$ normalization:
+\begin{equation}
+\bar{\mathbf{q}}_{i,h}^{(\ell)}
+=
+\frac{\mathbf{q}_{i,h}^{(\ell)}}
+{\|\mathbf{q}_{i,h}^{(\ell)}\|_2+\epsilon},
+\qquad
+\bar{\mathbf{k}}_{i,h}^{(\ell)}
+=
+\frac{\mathbf{k}_{i,h}^{(\ell)}}
+{\|\mathbf{k}_{i,h}^{(\ell)}\|_2+\epsilon}.
+\label{eq:norm_qk}
+\end{equation}
+The global diffusion-attention output can be summarized as
+\begin{equation}
+\mathbf{a}_{i,h}^{(\ell)}
+=
+\frac{
+\bar{\mathbf{q}}_{i,h}^{(\ell)}
+\left(
+\sum_{j=1}^{K}
+\bar{\mathbf{k}}_{j,h}^{(\ell)}
+(\mathbf{v}_{j,h}^{(\ell)})^T
+\right)
++
+\sum_{j=1}^{K}\mathbf{v}_{j,h}^{(\ell)}
+}{
+(\bar{\mathbf{q}}_{i,h}^{(\ell)})^T
+\left(
+\sum_{j=1}^{K}\bar{\mathbf{k}}_{j,h}^{(\ell)}
+\right)
++ K
+},
+\label{eq:linear_attention}
+\end{equation}
+which reflects the linear-time attention implemented in \texttt{full\_attention()}.
+
+In parallel, the graph branch performs normalized weighted aggregation:
+\begin{equation}
+\mathbf{g}_{i,h}^{(\ell)}
+=
+\sum_{j\in\mathcal{N}(i)}
+\frac{w_{ij}}{\sqrt{d_i d_j}}
+\mathbf{v}_{j,h}^{(\ell)},
+\label{eq:gcn_branch}
+\end{equation}
+where $w_{ij}$ is the edge weight extracted from $\mathbf{L}$. With the default setting \texttt{graph\_weight = -1}, the attention branch and graph branch are added directly. After averaging over all heads, the intermediate output is
+\begin{equation}
+\mathbf{t}_i^{(\ell)}
+=
+\frac{1}{H_{\mathrm{att}}}
+\sum_{h=1}^{H_{\mathrm{att}}}
+\left(
+\mathbf{a}_{i,h}^{(\ell)} + \mathbf{g}_{i,h}^{(\ell)}
+\right).
+\label{eq:transconv_out}
+\end{equation}
+
+The residual update used in \texttt{DIFFormer\_v2} is
+\begin{equation}
+\mathbf{x}_i^{(\ell+1)}
+=
+\rho
+\left(
+\mathcal{D}
+\left(
+\mathrm{LN}
+\left(
+\alpha_{\mathrm{res}}\mathbf{t}_i^{(\ell)}
++
+(1-\alpha_{\mathrm{res}})\mathbf{x}_i^{(\ell)}
+\right)
+\right)
+\right),
+\label{eq:residual_update}
+\end{equation}
+where $\alpha_{\mathrm{res}}=0.5$ by default in the provided implementation. After $L$ DIFFormer layers, an output linear layer maps the hidden representation back to the state dimension $s_u$.
+
+\subsubsection{Fusion with EP Statistics and GRU Memory}
+
+The DIFFormer output alone is not used as the final prediction. Instead, it is fused with the EP cavity statistics:
+\begin{equation}
+\mathbf{c}_k^{(t)}
+=
+\left[
+\mathbf{m}_k^{(t)};
+a_{\mathrm{cav},k}^{(t)};
+v_{\mathrm{cav},k}^{(t)}
+\right],
+\label{eq:gru_input}
+\end{equation}
+where $\mathbf{m}_k^{(t)}$ is the DIFFormer message for the $k$-th symbol. This concatenated vector is fed into a time-distributed GRU cell:
+\begin{equation}
+\mathbf{g}_k^{(t)}
+=
+\mathrm{GRUCell}
+\left(
+\mathbf{c}_k^{(t)},
+\mathbf{g}_k^{(t-1)}
+\right).
+\label{eq:gru_update}
+\end{equation}
+The hidden state is then mapped back to the state space by
+\begin{equation}
+\mathbf{r}_k^{(t)}=\mathbf{W}_{4}\mathbf{g}_k^{(t)}.
+\label{eq:read_gru}
+\end{equation}
+The tensor $\mathbf{r}_k^{(t)}$ is reused in \eqref{eq:iterative_init} at the next iteration, which means the neural module carries memory across EP rounds.
+
+Finally, a three-layer readout MLP produces the symbol logits:
+\begin{equation}
+\mathbf{o}_k^{(t)}
+=
+\mathbf{W}_{3c}
+\mathbf{W}_{3b}
+\mathcal{D}\!\left(
+\mathbf{W}_{3a}
+\mathbf{r}_k^{(t)}
+\right)
+\end{equation}
+Equivalently, one may write
+\begin{equation}
+\mathbf{u}_k^{(t)}=\mathcal{D}\!\left(\mathbf{W}_{3a}\mathbf{r}_k^{(t)}\right),\qquad
+\mathbf{v}_k^{(t)}=\mathbf{W}_{3b}\mathbf{u}_k^{(t)},\qquad
+\mathbf{o}_k^{(t)}=\mathbf{W}_{3c}\mathbf{v}_k^{(t)}.
+\label{eq:readout}
+\end{equation}
+In implementation, dropout is applied only after the first readout layer. The class posterior is
+\begin{equation}
+p_{\mathrm{DIF}}^{(t)}(x_k=a_m|\mathbf{y},\mathbf{H})
+=
+\frac{\exp(o_{k,m}^{(t)})}
+{\sum_{j=1}^{|\mathcal{X}|}\exp(o_{k,j}^{(t)})},
+\qquad a_m\in\mathcal{X}.
+\label{eq:softmax}
+\end{equation}
+
+\subsection{EP Site Update and Final Detection}
+
+Using the class posterior in \eqref{eq:softmax}, the refined mean and variance are
+\begin{equation}
+\hat{x}_k^{(t)}
+=
+\sum_{a\in\mathcal{X}}
+a\,p_{\mathrm{DIF}}^{(t)}(x_k=a|\mathbf{y},\mathbf{H}),
+\label{eq:xhat}
+\end{equation}
+\begin{equation}
+\hat{v}_k^{(t)}
+=
+\sum_{a\in\mathcal{X}}
+\left(a-\hat{x}_k^{(t)}\right)^2
+p_{\mathrm{DIF}}^{(t)}(x_k=a|\mathbf{y},\mathbf{H}).
+\label{eq:vhat}
+\end{equation}
+Let
+\begin{equation}
+\hat{\mathbf{x}}^{(t)}
+=
+[\hat{x}_1^{(t)},\ldots,\hat{x}_K^{(t)}]^T,
+\qquad
+\hat{\mathbf{V}}^{(t)}
+=
+\mathrm{diag}(\hat{v}_1^{(t)},\ldots,\hat{v}_K^{(t)}).
+\end{equation}
+The EP site parameters are updated as
+\begin{equation}
+\bm{\Lambda}^{(t)}
+=
+(\hat{\mathbf{V}}^{(t)})^{-1}
+-
+(\mathbf{V}_{\mathrm{cav}}^{(t)})^{-1},
+\label{eq:lambda_update}
+\end{equation}
+\begin{equation}
+\bm{\gamma}^{(t)}
+=
+(\hat{\mathbf{V}}^{(t)})^{-1}\hat{\mathbf{x}}^{(t)}
+-
+(\mathbf{V}_{\mathrm{cav}}^{(t)})^{-1}\mathbf{a}_{\mathrm{cav}}^{(t)},
+\label{eq:gamma_update}
+\end{equation}
+with
+\begin{equation}
+\mathbf{a}_{\mathrm{cav}}^{(t)}
+=
+[a_{\mathrm{cav},1}^{(t)},\ldots,a_{\mathrm{cav},K}^{(t)}]^T
+\end{equation}
+and
+\begin{equation}
+\mathbf{V}_{\mathrm{cav}}^{(t)}
+=
+\mathrm{diag}(v_{\mathrm{cav},1}^{(t)},\ldots,v_{\mathrm{cav},K}^{(t)}).
+\end{equation}
+
+To improve numerical stability, negative precision terms are clipped by reusing the previous EP values. Moreover, the code applies damping inside \texttt{performEP()} with coefficient $\beta$, which corresponds to the command-line argument \texttt{ep\_beta}. At the final iteration, the hard decision is obtained by nearest-neighbor slicing:
+\begin{equation}
+\hat{x}_k
+=
+\arg\min_{a\in\mathcal{X}}
+|\hat{x}_k^{(T)}-a|.
+\label{eq:hard_decision}
+\end{equation}
+
+\section{Training Objective and Implementation Details}
+
+The neural module outputs a logit vector for each real-valued symbol. Let $c_{b,k}$ denote the ground-truth class index of the $k$-th symbol in the $b$-th sample. The code trains the network by cross-entropy:
+\begin{equation}
+\mathcal{L}
+=
+\sum_{b=1}^{B}\sum_{k=1}^{K}
+\mathrm{CE}\!\left(
+\mathbf{o}_{b,k}, c_{b,k}
+\right),
+\label{eq:loss}
+\end{equation}
+where $\mathbf{o}_{b,k}$ is the output logit vector before softmax.
+
+For performance evaluation, the soft symbol estimate is computed from the posterior probabilities as a constellation-weighted sum, and then mapped back to the nearest discrete symbol index. The training script uses Adam for optimization and \texttt{ReduceLROnPlateau} for learning-rate scheduling. The number of DIFFormer layers, dropout ratio, EP iteration count, damping factor, and graph construction mode are all exposed as command-line arguments, which makes the detector architecture configurable without changing the inference pipeline.
+
+\section{Conclusion}
+
+This draft reformulates the method description according to the current implementation. In particular, the proposed detector should be described as an EP-guided DIFFormer-GRU architecture rather than a Chebyshev graph detector. The key implementation characteristics are: 1) EP-based cavity inference, 2) optional CEP or channel-correlation graph construction, 3) linear-time diffusion attention combined with graph aggregation, and 4) recurrent feature reuse across EP iterations.
+
+\begin{thebibliography}{00}
+\bibitem{b1} T. P. Minka, ``Expectation propagation for approximate Bayesian inference,'' in \emph{Proc. Conf. Uncertainty in Artificial Intelligence}, 2001, pp. 362--369.
+\bibitem{b2} A. Vaswani \emph{et al.}, ``Attention is all you need,'' in \emph{Advances in Neural Information Processing Systems}, 2017, pp. 5998--6008.
+\bibitem{b3} IEEE, ``IEEE conference templates,'' Accessed: Apr. 14, 2026. [Online]. Available: \url{https://www.ieee.org/conferences/publishing/templates.html}
+\end{thebibliography}
+
+\end{document}
