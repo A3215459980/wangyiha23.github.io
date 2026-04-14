@@ -1,0 +1,245 @@
+<mxfile host="app.diagrams.net" modified="2026-04-14T12:00:00.000Z" agent="Cursor GPT-5.4" version="24.7.17" type="device">
+  <diagram id="depnet-diagram" name="D-EPNet Diagram">
+    <mxGraphModel dx="1642" dy="931" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="leftPanel" value="Outer iterative process" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#666666;dashed=1;dashPattern=8 8;fillColor=#f5f5f5;fontStyle=1;fontSize=16;align=center;verticalAlign=top;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="430" height="820" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rightPanel" value="Information flow inside iteration t" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#666666;dashed=1;dashPattern=8 8;fillColor=#f5f5f5;fontStyle=1;fontSize=16;align=center;verticalAlign=top;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="520" y="40" width="1320" height="820" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="input" value="Input&lt;br&gt;&lt;b&gt;H, y, σ²&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="160" y="110" width="190" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="prep" value="Graph preprocessing&lt;br&gt;Γ(H, y)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="150" y="220" width="210" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="prepNote" value="Outputs: S⁽⁰⁾, L" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="305" width="230" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="iter1" value="Iteration t = 1&lt;br&gt;EP + DIFFormer-GRU" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="140" y="360" width="230" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="iter2" value="Iteration t = 2&lt;br&gt;EP + DIFFormer-GRU" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="140" y="480" width="230" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="dots" value="⋮" style="text;html=1;strokeColor=none;fillColor=none;fontSize=28;" vertex="1" parent="1">
+          <mxGeometry x="230" y="585" width="50" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="iterT" value="Iteration t = T&lt;br&gt;EP + DIFFormer-GRU" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="140" y="650" width="230" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="slice" value="Nearest-neighbor&lt;br&gt;slicing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="155" y="770" width="200" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="xhat" value="Output&lt;br&gt;&lt;b&gt;x̂&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="175" y="880" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="stateReuseOuter" value="state reuse:&lt;br&gt;R_gru^(t), G^(t)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=13;align=left;" vertex="1" parent="1">
+          <mxGeometry x="290" y="445" width="150" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="r_s0" value="S⁽⁰⁾" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="590" y="120" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_reuse" value="R_gru^(t-1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce5cd;strokeColor=#d79b00;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="760" y="120" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_init" value="Iterative feature&lt;br&gt;initialization" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="950" y="110" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_init_note" value="t = 1: FC_in(S⁽⁰⁾)&lt;br&gt;t &gt; 1: R_gru^(t-1)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="925" y="190" width="230" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_premlp" value="Pre-MLP&lt;br&gt;fc2a / fc2b / fc2c" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="110" width="180" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_dif" value="DIFFormer&lt;br&gt;attention + graph aggregation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="110" width="230" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_graph" value="L" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="40" width="90" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="r_epin" value="Λ^(t-1), γ^(t-1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="610" y="350" width="170" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_ep" value="EP observation&lt;br&gt;module" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="850" y="340" width="170" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_cav" value="a_cav^(t), v_cav^(t)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="350" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_concat" value="Concatenate&lt;br&gt;m^(t), a_cav^(t), v_cav^(t)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="500" width="230" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_gruold" value="G^(t-1)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce5cd;strokeColor=#d79b00;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="970" y="515" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_gru" value="GRU state&lt;br&gt;update" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="505" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_readgru" value="R_gru^(t)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1760" y="500" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_grunew" value="G^(t)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce5cd;strokeColor=#d79b00;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1760" y="590" width="120" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="r_readout" value="Readout MLP&lt;br&gt;fc3a / fc3b / fc3c" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1380" y="690" width="200" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_logits" value="o^(t)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#666666;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1640" y="700" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_softmax" value="Softmax + moments&lt;br&gt;x̂^(t), V̂^(t)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="690" width="170" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_epup" value="EP site update&lt;br&gt;Λ^(t), γ^(t)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1800" y="330" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_difnote" value="m^(t)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1465" y="300" width="70" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_reusenote" value="used in iteration t+1" style="text;html=1;strokeColor=none;fillColor=none;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1555" y="445" width="170" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="r_grunote" value="hidden state reuse" style="text;html=1;strokeColor=none;fillColor=none;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="615" width="170" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="input" target="prep">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="prep" target="iter1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="Λ^(1), γ^(1)" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="iter1" target="iter2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="iter2" target="iterT">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="255" y="605"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="x̂^(T)" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="iterT" target="slice">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="slice" target="xhat">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" style="endArrow=block;dashed=1;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="iter2" target="iter1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="410" y="520"/>
+              <mxPoint x="410" y="400"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e8" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_s0" target="r_init">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_reuse" target="r_init">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_init" target="r_premlp">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_premlp" target="r_dif">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_graph" target="r_dif">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e13" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_epin" target="r_ep">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_ep" target="r_cav">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_cav" target="r_concat">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1180" y="545"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e16" value="m^(t)" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_dif" target="r_concat">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1545" y="310"/>
+              <mxPoint x="1545" y="545"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e17" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_gruold" target="r_gru">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_concat" target="r_gru">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e19" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_gru" target="r_readgru">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e20" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_gru" target="r_grunew">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e21" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_readgru" target="r_readout">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1820" y="730"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e22" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_readout" target="r_logits">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e23" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_logits" target="r_softmax">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e24" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_softmax" target="r_epup">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1910" y="550"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e25" style="endArrow=block;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_epup" target="r_epin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="730" y="280"/>
+              <mxPoint x="730" y="380"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e26" style="endArrow=block;dashed=1;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_readgru" target="r_reuse">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1820" y="460"/>
+              <mxPoint x="830" y="460"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e27" style="endArrow=block;dashed=1;html=1;rounded=0;strokeWidth=2;" edge="1" parent="1" source="r_grunew" target="r_gruold">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1820" y="680"/>
+              <mxPoint x="1030" y="680"/>
+              <mxPoint x="1030" y="545"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
