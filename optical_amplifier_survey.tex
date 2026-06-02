@@ -1,0 +1,240 @@
+% =====================================================================
+% 编译方式：pdfLaTeX（Overleaf 默认编译器即可，无需切换 XeLaTeX）
+% 文档使用 CJKutf8 宏包来排版中文，Overleaf 默认已安装 cjk 与中文字体
+% 编译命令：pdflatex optical_amplifier_survey.tex （运行两次以更新引用编号）
+% =====================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage[unicode]{hyperref}
+\usepackage{titlesec}
+\usepackage{indentfirst}
+\usepackage{enumitem}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\setlength{\parindent}{2em}
+\setlength{\parskip}{4pt}
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\normalsize\bfseries}
+
+\begin{document}
+\begin{CJK}{UTF8}{gbsn}
+
+\title{\bfseries 光纤通信系统中光放大器关键技术综述}
+\author{}
+\date{}
+\maketitle
+
+\begin{abstract}
+\noindent\textbf{摘要：} 光放大器是现代大容量、长距离光纤通信系统不可或缺的核心使能器件。本文围绕"光放大器"这一主题进行较为深入的综述：首先回顾光放大器的发展背景与基本性能指标体系；随后分别对掺铒光纤放大器（EDFA）、半导体光放大器（SOA）与光纤拉曼放大器（FRA）三类主流光放大器的工作原理、关键结构、性能特性和工程应用进行系统讨论；进一步介绍 EDFA + 拉曼混合放大、C+L+S 多波段扩展、新型增益介质（TDFA、BDFA）以及超宽带 SOA 等频谱拓展技术；并结合波分复用（WDM）与可重构光分插复用（ROADM）网络，分析放大器作为功率放大器、线路放大器、预放大器的不同部署方式；最后对面向空分复用（SDM）、硅光集成、人工智能驱动的智能控制以及相敏放大等下一代光放大技术的发展趋势进行展望。本文旨在为光通信领域的学习者与研究者提供从原理到系统的完整视角。
+
+\vspace{4pt}
+\noindent\textbf{关键词：} 光纤通信；光放大器；EDFA；半导体光放大器；拉曼放大器；噪声指数；空分复用
+\end{abstract}
+
+\section{引言}
+
+光纤通信凭借石英光纤极低的衰减和巨大的带宽，已经成为现代信息基础设施的基石。然而，即使是当代超低损耗光纤，在 1550~nm 窗口的衰减仍约为 0.18$\sim$0.20~dB/km，跨段传输 80$\sim$100~km 之后信号功率会下降两个数量级以上。在这一现实下，如何在不引入过多噪声的前提下对光信号进行放大，是构建长距离、大容量光网络的关键问题。
+
+光放大器（Optical Amplifier, OA）的出现彻底改变了光通信系统的架构。在 EDFA 出现之前，长距系统不得不依赖光-电-光（O-E-O）中继：每隔几十千米就需要把光信号检测为电信号，再经过电再生与重新调制后送回光纤，这种方式成本高、能耗大，且对每个波长信道都需独立处理，难以适应 WDM 多波长场景。1987 年，南安普顿大学 Mears 等首次报道了基于掺铒石英光纤的低噪声光纤放大器\cite{mears1987}；同年，AT\&T 贝尔实验室 Desurvire 等独立实现了高增益行波 EDFA\cite{desurvire1987}。此后光通信进入"全光放大"时代，并随之催生了大规模 DWDM 与全光网络的繁荣\cite{becker1999}。
+
+本文围绕光放大器这一光纤通信中至关重要的有源器件，从基本原理与性能指标出发，重点综述 EDFA、SOA、FRA 三大类放大器的工作机理、关键技术与典型应用，进一步讨论混合放大与频带扩展，并对面向 6G 与下一代光网络的发展趋势做出展望。
+
+\section{光放大器的基本原理与性能指标}
+
+所有实用光放大器都基于受激辐射或非线性增益过程实现对入射光的功率放大。从能级图角度看，泵浦源（光泵或电泵）将增益介质的活性粒子从基态抽运到高能态，形成粒子数反转或等效非线性增益；当信号光通过增益介质时，受激辐射产生的光子与入射光子在频率、相位、偏振、传播方向上完全一致，从而实现相干放大。
+
+衡量光放大器的核心性能指标主要包括以下几项\cite{agrawal2010}：
+
+\begin{enumerate}[leftmargin=2.5em,itemsep=2pt]
+\item \textbf{小信号增益} $G_0$：低输入功率下输出与输入功率的比值，通常以 dB 表示，商用 EDFA 可达 30$\sim$40~dB；
+\item \textbf{增益带宽}：保持增益基本平坦的频谱范围，EDFA C 波段约 35~nm，SOA 与 FRA 都可超过 60~nm；
+\item \textbf{饱和输出功率} $P_{\mathrm{sat}}$：增益压缩 3~dB 时对应的输出功率，决定放大器能驱动多大功率链路；
+\item \textbf{噪声指数} NF：输入端与输出端电信号 SNR 之比，理想光放大器的量子极限为 3~dB；
+\item \textbf{偏振相关增益} PDG：两个正交偏振增益的差，单模光纤系统中希望 PDG 越小越好；
+\item \textbf{动态特性}：包括增益恢复时间、瞬态响应与图样效应（pattern effect）。
+\end{enumerate}
+
+按照增益机理可将光放大器分为三大类：(a) 基于稀土离子受激辐射的掺杂光纤放大器，代表是 EDFA、TDFA、BDFA 等；(b) 基于半导体导带$-$价带受激辐射的半导体光放大器 SOA；(c) 基于光纤非线性效应（受激拉曼散射 SRS 或受激布里渊散射 SBS、参量过程）的非线性光放大器，代表是 FRA、布里渊放大器和参量放大器。下面对前三种主流方案分别详细讨论。
+
+\section{掺铒光纤放大器（EDFA）}
+
+\subsection{历史背景与意义}
+
+EDFA 之所以能够主导现代光通信，根本原因在于其工作波长恰好覆盖了石英光纤损耗最低的 1550~nm 窗口，并具有偏振无关、噪声指数低、能与 WDM 信号同时放大等独特优势。1987 年 Mears 等首次在低浓度掺铒石英光纤中观察到 1530$\sim$1560~nm 的高增益光放大\cite{mears1987}；几乎同时，Desurvire 等以 980~nm 半导体激光器作为泵浦源，实现了增益超过 26~dB 的高效率行波放大器\cite{desurvire1987}。1990 年代以后，EDFA 与 WDM、ROADM 的结合使单纤容量从 Gb/s 跨入 Tb/s 量级，构成了如今全光骨干网与海缆系统的核心\cite{becker1999,agrawal2010}。
+
+\subsection{工作原理}
+
+EDFA 的增益介质是少量掺杂三价铒离子（$\mathrm{Er}^{3+}$）的石英光纤。$\mathrm{Er}^{3+}$ 的能级结构近似可视为三能级系统：基态 $^4I_{15/2}$、亚稳态 $^4I_{13/2}$ 以及更高的泵浦能级。当采用 980~nm 泵浦时，离子先被抽运到 $^4I_{11/2}$ 能级，再快速无辐射弛豫到 $^4I_{13/2}$ 亚稳态，形成对基态的粒子数反转；亚稳态寿命长达约 10~ms，是形成大增益的关键。1480~nm 泵浦则直接将离子抽运到 $^4I_{13/2}$ 上能级子带，属于二能级泵浦。1530$\sim$1565~nm 范围的信号光通过受激辐射跃迁回基态，从而实现放大。
+
+\subsection{基本结构与泵浦方式}
+
+典型 EDFA 由若干米掺铒光纤、半导体泵浦激光器（PLD）、波分复用合束器（WDM coupler）、光隔离器以及增益均衡滤波器（GFF）组成。隔离器抑制反向反射，防止形成寄生振荡。
+
+按泵浦光的注入方向，可分为：
+
+\begin{itemize}[leftmargin=2.5em,itemsep=2pt]
+\item \textbf{前向泵浦}：泵浦光与信号光同向传播。优势在于输入端粒子数反转最高，因而 ASE 噪声较低，是低噪声前置放大器的首选方案；
+\item \textbf{后向泵浦}：泵浦光与信号光反向传播。在输出端反转最强，可获得更高的饱和输出功率，适合用作功率放大器（booster）；
+\item \textbf{双向泵浦}：在两端各注入一个泵浦激光器，兼顾低噪声与高输出功率，常用作长跨段线路放大器。
+\end{itemize}
+
+泵浦激光器多采用 980~nm 应变量子阱 InGaAs/GaAs LD 或 1480~nm InGaAsP LD，输出功率几百毫瓦至瓦级。光纤组件全部采用熔接以减小损耗与回波。
+
+\subsection{关键工作特性}
+
+实际 EDFA 在工作中表现出多种重要特性，需要进行系统性建模与控制\cite{sun1997}：
+
+(1) \textbf{增益谱不平坦}：原始 EDFA 在 1530~nm 与 1550~nm 附近存在显著增益峰差，导致 WDM 多信道功率不均。工程上常采用增益均衡滤波器（如薄膜滤波器或长周期光纤光栅 LPFG）对增益谱进行平整化，使整个 C 波段增益平坦度优于 $\pm 0.5$~dB；
+
+(2) \textbf{增益饱和}：当输入功率较大时，受激辐射消耗反转粒子的速度超过泵浦速度，增益开始下降。利用速率方程可以建立放大器的解析模型，预测不同泵浦/输入条件下的输出特性\cite{sun1997}；
+
+(3) \textbf{ASE 噪声与 NF}：自发辐射经历放大后形成自发辐射放大（ASE）噪声，是 EDFA 的主要噪声源。理想两级放大的 NF 量子极限为 3~dB，商用 EDFA 通常可达 4$\sim$5~dB；
+
+(4) \textbf{增益钳制与动态特性}：在 ROADM 节点或动态网络中，信道增删会引起残余信道功率剧烈瞬态。增益钳制 EDFA（GC-EDFA）通过引入反馈环（光学或电气）将放大器工作点锁定，可在毫秒甚至微秒量级抑制瞬态。
+
+\subsection{L 波段与高功率 EDFA}
+
+为进一步扩展可用频谱，工业界开发了 L 波段（1565$\sim$1625~nm）EDFA。L 波段铒离子受激辐射截面较小，需要采用较长的掺铒光纤（数十米）和较高的反转水平。典型实现是 C/L 双段结构：信号先经一个 C 波段优化的预级，再通过波分耦合送入 L 波段优化的功率级。多通道 EDFA 阵列、共腔泵浦与高功率泵浦（瓦级）则进一步推动 EDFA 在高密度可插拔光模块、海缆远端泵浦放大器（ROPA）中的应用\cite{becker1999}。
+
+在更高功率与更高集成度方向，双包层掺铒（或铒/镱共掺）光纤放大器（EYDFA）通过 9xx~nm 多模泵浦实现 10~W 量级输出，可作为大功率 booster；而面向数据中心可插拔模块的小型化 EDFA 则采用紧凑封装、低阈值泵浦激光器与无热化设计，在保证 NF 优于 6~dB 的同时将整机功耗降至几瓦以下，为 400G/800G 可插拔相干光模块提供与之匹配的线路放大方案。
+
+\section{半导体光放大器（SOA）}
+
+\subsection{结构与原理}
+
+半导体光放大器（Semiconductor Optical Amplifier, SOA）在结构上与法布里-珀罗激光器或 DFB 激光器十分相似：由 InP 基或 GaAs 基的多量子阱有源区、p-n 结结构和波导组成。区别在于 SOA 的两端面镀有抗反射膜（残余反射率小于 $10^{-4}$），消除谐振腔模，使其工作于行波放大状态。当对 SOA 注入电流时，载流子被注入有源区导带形成粒子数反转；入射信号光通过受激辐射获得放大。
+
+\subsection{关键性能与挑战}
+
+SOA 的优势在于体积小、增益带宽宽（$>60$~nm）、可单片集成于 InP 光子集成芯片（PIC）中，并能通过半导体工艺批量制造。然而，SOA 也存在一些固有挑战\cite{connelly2002}：
+
+(1) \textbf{偏振相关增益（PDG）}：传统 SOA 增益对入射光偏振敏感，PDG 可达数 dB。通过应变补偿量子阱、张应变与压应变量子阱组合或体材料近方形截面波导，可以将 PDG 抑制到 1~dB 以下；
+
+(2) \textbf{增益恢复时间}：SOA 中载流子寿命约为几百皮秒到 1~ns。当多个高速比特连续通过时，先到的"1"比特会消耗载流子，使后续比特增益降低，造成所谓的\textbf{图样效应}，限制其在长距系统中的应用；
+
+(3) \textbf{噪声指数偏高}：受耦合损耗与不完全反转影响，SOA 的 NF 通常在 7$\sim$9~dB 左右，高于 EDFA；
+
+(4) \textbf{非线性效应丰富}：交叉增益调制（XGM）、交叉相位调制（XPM）和四波混频（FWM）使 SOA 在全光信号处理中具有独特价值。
+
+\subsection{典型应用}
+
+得益于体积与集成优势，SOA 在以下场景被广泛使用：(a) 城域中继与短距数据中心互联中的线路放大；(b) PON 系统上行突发模式放大，其快速恢复特性甚至比 EDFA 更具优势；(c) 全光波长转换器与全光 2R/3R 再生器；(d) 作为相干接收前的光预放大器或在 PIC 中作为损耗补偿模块\cite{connelly2002}；(e) 在新一代非掺铒频段（如 O 波段、E 波段）放大中，SOA 几乎是唯一可行的方案。
+
+值得指出的是，针对图样效应这一长期困扰 SOA 的问题，业界提出了多种缓解思路：一是采用偏置较深的高电流注入，将载流子寿命压缩到 50~ps 以下，使其低于符号周期；二是引入辅助光（holding beam）将 SOA 工作点钳制在饱和区，降低增益随信号功率的瞬时波动；三是在调制格式上采用近恒包络的 QPSK 与 DP-QPSK，使 SOA 增益变化对调制信号影响显著减小。这些改进使 SOA 在 100G 相干 DCI 系统中逐步具备工程化能力。
+
+\section{光纤拉曼放大器（FRA）}
+
+\subsection{基本原理}
+
+光纤拉曼放大器（Fiber Raman Amplifier, FRA）利用石英光纤本身的受激拉曼散射（SRS）效应实现信号放大\cite{islam2002}。当一束高功率泵浦光在光纤中传播时，与石英分子的振动模式发生非弹性散射，向频率较低的方向转移能量。当某一信号波长恰好位于泵浦波长之下、且频率差落在拉曼增益带内时，信号光便会得到放大。
+
+石英光纤的拉曼增益峰值约在与泵浦相差 13.2~THz 处，3~dB 带宽约为 5~THz。例如，1455~nm 泵浦可放大 1550~nm 信号，1366~nm 泵浦可放大 1450~nm 信号。通过多个不同波长泵浦的合理叠加，可获得 100~nm 量级超平坦增益带\cite{bromage2004}。
+
+\subsection{分布式与集总式}
+
+按增益介质形式，FRA 分为两类：
+
+\begin{itemize}[leftmargin=2.5em,itemsep=2pt]
+\item \textbf{分布式拉曼放大（DRA）}：直接以传输线路光纤为增益介质，泵浦光通常从接收端反向注入。由于信号在沿线连续小幅放大，等效噪声指数可以小于 0~dB（甚至达到 $-3$~dB 左右），可显著改善长跨段的 OSNR；
+\item \textbf{集总式拉曼放大（LRA）}：使用专门设计的高非线性、高拉曼系数光纤（如细芯色散补偿光纤 DCF）作为增益介质，结构紧凑但效率仍低于 EDFA。
+\end{itemize}
+
+实际工程中绝大多数采用反向泵浦的 DRA，与 EDFA 串联形成混合放大方案。
+
+\subsection{关键特性与挑战}
+
+FRA 具有以下突出特点\cite{headley2005}：
+
+(1) \textbf{任意波长可放大}：只要有合适波长的泵浦激光器，就可以在 1.2$\sim$1.7~$\mu$m 整个低损耗窗口内提供增益，不受稀土离子能级限制；
+
+(2) \textbf{超低等效噪声}：分布式增益减小了信号在低功率段被噪声主导的距离，理想反向 DRA 等效 NF 可为负值；
+
+(3) \textbf{宽带平坦增益}：通过 5$\sim$7 个不同波长的泵浦组合，可在 C+L 波段实现增益平坦度 $\pm 0.5$~dB 以内。
+
+主要挑战包括：(a) 所需泵浦功率较高（数百毫瓦至瓦级），泵浦激光器与光路成本高；(b) 泵浦$-$泵浦相互拉曼作用（pump-to-pump SRS）使各泵浦功率分布耦合，控制复杂；(c) 双瑞利散射（DRB）引入额外噪声；(d) 高泵浦功率对人员与器件安全提出要求。
+
+\subsection{应用}
+
+DRA + EDFA 混合放大已成为超长跨段、大容量长距系统的标配方案，能将无电再生跨段从 80~km 提升到 150$\sim$200~km 以上。在海缆系统中，远端光泵浦放大器（ROPA）则把陆地端的强泵浦经海底光纤送到几十千米外的无源放大段，实现免电源的中继。
+
+\section{混合放大与频带扩展}
+
+随着流量增长，仅靠 C 波段已经无法满足需求，业界正同时从两个方向扩展放大器的能力：
+
+\textbf{(1) 多放大器混合。} 典型方案是 EDFA + 反向 DRA 串联：DRA 提供分布式低噪声预放大，EDFA 提供高增益与高输出功率，两者协同可将系统 OSNR 改善 3$\sim$5~dB。EDFA + SOA、双向 Raman、参量放大器（PSA/PIA） + EDFA 等组合也被广泛研究，以满足不同场景需求。
+
+\textbf{(2) 频带扩展。} 在 C 波段成熟的基础上，业界已将 L 波段大规模商用，并在研究 S 波段（1460$\sim$1530~nm）与 U 波段。S 波段通常采用 TDFA（掺铥光纤放大器）或拉曼放大，C+L+S 三波段联合传输使单纤可用频谱增加 2$\sim$3 倍\cite{renaudier2022}。掺铋光纤放大器（BDFA）则有望在 1.3~$\mu$m 与 1.7~$\mu$m 等新频段提供高效放大，是 SDM 与新一代海缆中的重要候选。
+
+此外，\textbf{超宽带 SOA} 近年获得显著进展，单个器件已可覆盖 100~nm 以上的连续频谱，并在 ECOC 等顶会上演示了百 Tb/s 量级的超宽带传输系统\cite{renaudier2022}。这种"单器件覆盖全频段"的趋势对未来光网络的频谱管理与设备形态都将带来深远影响。
+
+\section{在 WDM 与超长距系统中的应用}
+
+光放大器并非孤立器件，而是 WDM 链路与 ROADM 节点中的关键组件。其使用方式可归纳为三类：
+
+\begin{enumerate}[leftmargin=2.5em,itemsep=2pt]
+\item \textbf{功率放大器（Booster）}：紧跟在发射端复用器之后，将每信道功率推高到合适水平送入线路，关注高饱和输出功率与较低成本，常用后向泵浦 EDFA；
+\item \textbf{线路放大器（Line/In-line Amplifier）}：周期性放置在线路上补偿跨段损耗，关注 NF 与平坦度的折衷，常采用双向泵浦 EDFA 或 EDFA+DRA 混合方案；
+\item \textbf{预放大器（Pre-amplifier）}：位于接收端解复用器之前提升光信号至 PIN/相干接收器所需电平，关注极低 NF，常用前向泵浦 EDFA。
+\end{enumerate}
+
+在 ROADM 节点，由于波长上/下路造成各信道功率不均，需要利用动态增益均衡器（DGE）与可调光衰减器（VOA）配合放大器实现逐信道功率控制。光性能监测（OPM）持续反馈各信道光信噪比，结合 SDN 控制器实现"按需"功率分配。
+
+\section{发展趋势与展望}
+
+面向下一代光网络与 6G 承载的需求，光放大器的发展呈现出以下几条趋势：
+
+\textbf{(1) 空分复用（SDM）放大器。} 随着多芯光纤（MCF）与少模光纤（FMF）走向工程化，传统单芯单模 EDFA 不再适用。多芯 EDFA（MC-EDFA）通过共泵浦多个掺铒芯实现并行放大，模分 EDFA（MM-EDFA）则需要在长掺铒光纤中控制不同模式的增益均衡，使各空间维度的 OSNR 接近一致。这类放大器是 Pb/s 级 SDM 系统能否商用的关键瓶颈\cite{renaudier2022}。
+
+\textbf{(2) 集成型与硅光 SOA。} 硅光平台凭借大规模制造优势，正与 III-V 族异质键合相结合，将 SOA 与调制器、波导、光混频器单片集成，为相干可插拔模块的"片上光放大"奠定基础。
+
+\textbf{(3) AI 驱动的智能放大器控制。} 基于机器学习的 EDFA 增益形状预测、瞬态补偿与多放大器级联端到端优化，可显著降低 OSNR 余量，使光层资源利用率最大化。
+
+\textbf{(4) 相敏放大器（PSA）。} 通过参量过程实现的相敏光放大器在理论上具有 0~dB 量子噪声极限，能够突破常规放大器 3~dB 的 NF 下限，为长距系统进一步扩容提供新的思路，目前仍处于实验研究阶段。
+
+\textbf{(5) 绿色低能耗。} 随着数据中心与运营商对能效（pJ/bit）的关注，新型低阈值泵浦、光-电-热协同设计的低功耗 EDFA 正成为重要研究方向。同时，光放大器与色散补偿、波长选择开关（WSS）等模块在同一封装中协同设计，有望进一步降低光层总体功耗与机柜占用。
+
+\textbf{(6) 量子与新型应用。} 在量子密钥分发（QKD）、量子中继与超长距单光子通信场景中，传统放大器引入的 ASE 噪声会破坏量子态。为此，研究者正在探索基于参量过程的相敏量子放大、纠缠光放大以及无噪声线性放大（NLA）等新方案，并尝试将其与现有光通信基础设施融合。这预示着光放大器的研究边界正在从经典通信向量子通信延伸。
+
+\section{结论}
+
+光放大器是光纤通信系统的核心使能技术之一。本文围绕 EDFA、SOA 与 FRA 三大主流放大器，系统综述了它们的工作原理、关键性能、典型结构与工程应用，并进一步讨论了混合放大、频带扩展以及面向 SDM 与 6G 的最新发展趋势。可以看到，从 1987 年 EDFA 横空出世到当代 C+L+S 多波段、空分复用与 AI 驱动的智能放大器，光放大技术始终伴随着光通信容量的不断攀升而演进。深入理解光放大器的物理本质与系统行为，将为后续光器件、光模块与光网络的研究提供坚实基础。
+
+\begin{thebibliography}{99}
+
+\bibitem{mears1987} Mears R J, Reekie L, Jauncey I M, Payne D N. Low-noise erbium-doped fibre amplifier operating at 1.54~$\mu$m[J]. \textit{Electronics Letters}, 1987, 23(19): 1026--1028.
+
+\bibitem{desurvire1987} Desurvire E, Simpson J R, Becker P C. High-gain erbium-doped traveling-wave fiber amplifier[J]. \textit{Optics Letters}, 1987, 12(11): 888--890.
+
+\bibitem{becker1999} Becker P C, Olsson N A, Simpson J R. \textit{Erbium-Doped Fiber Amplifiers: Fundamentals and Technology}[M]. San Diego: Academic Press, 1999.
+
+\bibitem{sun1997} Sun Y, Zyskind J L, Srivastava A K. Average inversion level, modeling, and physics of erbium-doped fiber amplifiers[J]. \textit{IEEE Journal of Selected Topics in Quantum Electronics}, 1997, 3(4): 991--1007.
+
+\bibitem{connelly2002} Connelly M J. \textit{Semiconductor Optical Amplifiers}[M]. Boston: Kluwer Academic Publishers, 2002.
+
+\bibitem{agrawal2010} Agrawal G P. \textit{Fiber-Optic Communication Systems}[M]. 4th ed. Hoboken: John Wiley \& Sons, 2010.
+
+\bibitem{islam2002} Islam M N. Raman amplifiers for telecommunications[J]. \textit{IEEE Journal of Selected Topics in Quantum Electronics}, 2002, 8(3): 548--559.
+
+\bibitem{bromage2004} Bromage J. Raman amplification for fiber communications systems[J]. \textit{Journal of Lightwave Technology}, 2004, 22(1): 79--93.
+
+\bibitem{headley2005} Headley C, Agrawal G P. \textit{Raman Amplification in Fiber Optical Communication Systems}[M]. San Diego: Academic Press, 2005.
+
+\bibitem{renaudier2022} Renaudier J, Napoli A, Ionescu M, et al. Devices and fibers for ultrawideband optical communications[J]. \textit{Proceedings of the IEEE}, 2022, 110(11): 1716--1734.
+
+\end{thebibliography}
+
+\end{CJK}
+\end{document}
