@@ -1,0 +1,109 @@
+\documentclass[UTF8,a4paper,12pt]{ctexart}
+
+\usepackage{geometry}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{setspace}
+
+\geometry{left=2.8cm,right=2.8cm,top=2.6cm,bottom=2.6cm}
+\setstretch{1.25}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\title{光通信技术发展与应用趋势调研}
+\author{光通信课程调研论文}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+光通信以光纤为主要传输媒介，凭借低损耗、大带宽和抗电磁干扰等优势，已经成为骨干网、接入网和数据中心互联的核心技术。本文围绕光通信课程中的关键知识点，调研光纤信道、光发射与接收、波分复用、掺铒光纤放大、相干检测和数字信号处理等方向，并讨论空分复用、硅光集成和智能光网络的发展趋势。调研表明，未来光通信容量提升将不再只依赖单一器件速率，而更强调光电协同、网络架构优化和多维复用能力。
+\end{abstract}
+
+\noindent\textbf{关键词：}光纤通信；波分复用；相干检测；数字信号处理；空分复用
+
+\section{引言}
+
+信息社会对通信容量的需求持续增长，云计算、高清视频、人工智能训练、移动互联网和物联网业务都需要稳定的大带宽承载。与传统电缆传输相比，光纤利用光波作为信息载体，具有传输损耗低、可用频谱宽、抗电磁干扰能力强和安全性较高等特点。1966 年，Kao 和 Hockham 提出只要降低玻璃纤维中的杂质吸收，光纤就可以成为长距离通信介质，这一判断奠定了现代光纤通信的理论基础\cite{kao1966dielectric}。
+
+从课程角度看，光通信系统通常由光发射机、光纤信道、光放大与中继、光接收机以及网络控制管理部分组成\cite{keiser2021optical}。其核心问题包括如何把电信号高效调制到光载波上，如何降低色散、非线性和噪声影响，以及如何在接收端可靠恢复信息。近年来，单波长速率已经从数 Gb/s 提升到 100 Gb/s、400 Gb/s 乃至 Tb/s 级别，系统设计也由单纯追求距离转向容量、成本、能耗和可维护性的综合优化。
+
+\section{光纤信道与关键特性}
+
+光纤的基本结构由纤芯、包层和涂覆层组成，依靠全反射机制约束光场传播。单模光纤是长距离通信的主流选择，其典型工作窗口位于 1310 nm 和 1550 nm 附近。1550 nm 窗口具有较低损耗，并与掺铒光纤放大器的增益带宽匹配，因此成为骨干光网络的核心波段\cite{agrawal2021fiber}。光纤信道的主要损伤包括衰减、色散、偏振模色散和非线性效应。衰减决定无放大传输距离，色散会导致不同频率成分到达时间不同，非线性效应则在高光功率和多波长传输时更加明显。
+
+早期系统常通过色散补偿光纤或光学补偿模块抵消色散。随着相干接收和高速数字信号处理的发展，许多线性损伤可以在电域中补偿，系统结构因此更加灵活。尽管如此，光纤非线性仍然是长距离大容量系统的重要瓶颈。Essiambre 等人的容量极限研究指出，在给定带宽和放大噪声条件下，继续提高发射功率并不能无限提升信噪比，因为非线性噪声会同步增加\cite{essiambre2010capacity}。
+
+\section{光源、调制与光放大技术}
+
+光发射机把电域信息映射到光载波的强度、相位、频率或偏振状态上。半导体激光器体积小、效率高、易于集成，是现代系统最常用的光源。短距离场景常采用强度调制直接检测结构，成本较低，适用于无源光网络和部分数据中心互联。高速长距离传输则多使用外调制器，以降低啁啾并支持相位或正交幅度调制。
+
+光放大器的出现显著改变了系统架构。掺铒光纤放大器能够在 1550 nm 附近直接放大光信号，不需要频繁进行光电光再生。Mears 等人报道的低噪声 EDFA 为长距离多跨段传输和波分复用网络奠定了基础\cite{mears1987low}。Desurvire 的总结表明，增益平坦度、噪声系数和泵浦效率是工程设计中必须权衡的指标\cite{desurvire1994edfa}。
+
+\section{波分复用与高速相干通信}
+
+波分复用通过在同一根光纤中传输多个不同波长的光载波来提升总容量。密集波分复用系统把低损耗窗口划分为许多频率间隔较小的信道，每个信道承载独立数据流。由于光放大器能够同时放大多个波长，WDM 与 EDFA 的结合成为骨干网扩容的主要路径。随着可重构光分插复用器和波长选择开关成熟，光层网络也从静态点到点链路演进为可动态调度的弹性网络。
+
+调制和检测方式是高速系统的另一条主线。早期系统以开关键控为主，频谱效率较低；相干检测通过本振光与接收信号相干混频，可以同时获取光场幅度和相位，从而支持 QPSK、16QAM、64QAM 等高阶调制格式。Kahn 和 Ho 指出，高阶调制能提高单位带宽承载能力，但对光信噪比、激光线宽和非线性更加敏感\cite{kahn2004spectral}。Winzer 和 Essiambre 进一步说明，偏振复用、相位调制和相干接收共同推动了 100 Gb/s 以上系统的发展\cite{winzer2006advanced}。
+
+数字信号处理是相干光通信实用化的关键。接收端高速模数转换后，可以用算法完成色散补偿、偏振解复用、频偏估计、载波相位恢复和均衡。Ip 等人系统介绍了相干光系统中的 DSP 结构，说明许多过去依赖光学器件补偿的损伤可以转移到可编程电域处理\cite{ip2008coherent}。
+
+\section{典型应用场景}
+
+在长途骨干网中，光通信承担跨城市、跨海底和跨洲际的大容量传输任务，重视单纤容量、传输距离和可靠性，常使用相干 WDM、光放大链路和前向纠错技术。城域网业务颗粒度更复杂，既要连接数据中心，也要承载移动回传和企业专线，因此更强调弹性带宽调度和低运维成本。
+
+在接入网中，无源光网络是光纤到户的重要方案。PON 通过光分路器让多个用户共享一根馈线光纤，具有低成本和低功耗优势。数据中心互联则更关注短距大规模连接，光模块成本、功耗、封装密度和散热成为关键约束。硅光集成技术把调制器、探测器、波导和部分无源器件集成在芯片上，有望降低高速光模块成本。
+
+\section{未来趋势与挑战}
+
+第一，单模光纤的容量提升正逐渐接近传统 C 波段系统的工程上限，扩展 L 波段、S 波段以及采用多芯光纤和少模光纤成为重要方向。Richardson 等人指出，空分复用通过空间维度增加并行信道，是突破单根单模光纤容量限制的代表性方案\cite{richardson2013space}。不过，该方案仍需解决多芯串扰、模式耦合、放大器集成和 MIMO 均衡复杂度等问题。
+
+第二，光网络需要更加智能和灵活。未来可结合实时监测、机器学习和软件定义控制，根据链路状态动态选择调制格式、编码开销、路由和频谱分配。第三，能耗问题日益突出。高速相干收发机中的 DSP、模数转换器和数模转换器功耗较高，因此低功耗调制器、先进封装、片上激光集成和高能效算法会成为重要研究方向。
+
+第四，光通信与无线通信、计算网络的边界正在变得模糊。6G 承载、边缘计算和智算中心互联要求网络同时具备大带宽、低时延和高可靠性。课程学习中如果只关注单个器件或单条链路，容易忽略系统级约束；真正的工程设计需要把物理层性能、设备成本、网络架构和业务需求结合起来分析。
+
+\section{结论}
+
+光通信的发展体现了材料、器件、通信理论和数字处理技术的协同进步。低损耗光纤解决了传输媒介问题，半导体激光器和光电探测器实现了高效光电转换，EDFA 和 WDM 使单纤容量成倍提升，相干检测与 DSP 则把光通信带入高频谱效率时代。面向未来，容量增长、能耗控制、灵活组网和多维复用将是光通信研究与工程部署的主要方向。理解这些技术之间的联系，有助于进一步学习高速光模块、光网络规划以及新型智能光传输系统。
+
+\begin{thebibliography}{99}
+
+\bibitem{kao1966dielectric}
+K. C. Kao and G. A. Hockham, ``Dielectric-fibre surface waveguides for optical frequencies,'' \emph{Proceedings of the Institution of Electrical Engineers}, vol. 113, no. 7, pp. 1151--1158, 1966.
+
+\bibitem{agrawal2021fiber}
+G. P. Agrawal, \emph{Fiber-Optic Communication Systems}, 5th ed. Hoboken, NJ, USA: Wiley, 2021.
+
+\bibitem{keiser2021optical}
+G. Keiser, \emph{Optical Fiber Communications}, 5th ed. New York, NY, USA: McGraw-Hill Education, 2021.
+
+\bibitem{mears1987low}
+R. J. Mears, L. Reekie, I. M. Jauncey, and D. N. Payne, ``Low-noise erbium-doped fibre amplifier operating at 1.54 $\mu$m,'' \emph{Electronics Letters}, vol. 23, no. 19, pp. 1026--1028, 1987.
+
+\bibitem{desurvire1994edfa}
+E. Desurvire, \emph{Erbium-Doped Fiber Amplifiers: Principles and Applications}. New York, NY, USA: Wiley, 1994.
+
+\bibitem{kahn2004spectral}
+J. M. Kahn and K.-P. Ho, ``Spectral efficiency limits and modulation/detection techniques for DWDM systems,'' \emph{IEEE Journal of Selected Topics in Quantum Electronics}, vol. 10, no. 2, pp. 259--272, 2004.
+
+\bibitem{winzer2006advanced}
+P. J. Winzer and R.-J. Essiambre, ``Advanced optical modulation formats,'' \emph{Proceedings of the IEEE}, vol. 94, no. 5, pp. 952--985, 2006.
+
+\bibitem{ip2008coherent}
+E. Ip, A. P. T. Lau, D. J. F. Barros, and J. M. Kahn, ``Coherent detection in optical fiber systems,'' \emph{Optics Express}, vol. 16, no. 2, pp. 753--791, 2008.
+
+\bibitem{essiambre2010capacity}
+R.-J. Essiambre, G. Kramer, P. J. Winzer, G. J. Foschini, and B. Goebel, ``Capacity limits of optical fiber networks,'' \emph{Journal of Lightwave Technology}, vol. 28, no. 4, pp. 662--701, 2010.
+
+\bibitem{richardson2013space}
+D. J. Richardson, J. M. Fini, and L. E. Nelson, ``Space-division multiplexing in optical fibres,'' \emph{Nature Photonics}, vol. 7, no. 5, pp. 354--362, 2013.
+
+\end{thebibliography}
+
+\end{document}
