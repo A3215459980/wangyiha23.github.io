@@ -312,7 +312,7 @@ $$
 给定
 $$
 x=\begin{pmatrix}1\\-2\end{pmatrix},\;
-k_1=\begin{pmatrix}0.5 & -1\\ 0 & 1\end{pmatrix},\;
+k_1=\begin{pmatrix}0.5 & -1\\ 1 & 0\end{pmatrix},\;
 b_1=\begin{pmatrix}0\\0\end{pmatrix},\;
 k_2=\begin{pmatrix}1 & 0.5\\ -0.5 & 1\end{pmatrix},\;
 b_2=\begin{pmatrix}0\\0\end{pmatrix},\;
@@ -323,67 +323,68 @@ $\hat y = k_2\,\mathrm{ReLU}(k_1 x+b_1)+b_2$，$L=\tfrac12\|y-\hat y\|^2$。
 **(1) 前向**
 
 $$
-z^{(1)}=k_1 x+b_1=\begin{pmatrix}0.5\!\cdot\!1+(-1)\!\cdot\!(-2)\\ 0\!\cdot\!1+1\!\cdot\!(-2)\end{pmatrix}
-=\begin{pmatrix}2.5\\-2\end{pmatrix}
+z^{(1)}=k_1 x+b_1=\begin{pmatrix}0.5\!\cdot\!1+(-1)\!\cdot\!(-2)\\ 1\!\cdot\!1+0\!\cdot\!(-2)\end{pmatrix}
+=\begin{pmatrix}2.5\\1\end{pmatrix}
 $$
 
+两个分量都 > 0，故
 $$
-h=\mathrm{ReLU}(z^{(1)})=\begin{pmatrix}2.5\\0\end{pmatrix}
+h=\mathrm{ReLU}(z^{(1)})=\begin{pmatrix}2.5\\1\end{pmatrix}
 $$
 
 $$
 \hat y=k_2 h+b_2=
-\begin{pmatrix}1\!\cdot\!2.5+0.5\!\cdot\!0\\ -0.5\!\cdot\!2.5+1\!\cdot\!0\end{pmatrix}
-=\boxed{\begin{pmatrix}2.5\\-1.25\end{pmatrix}}
+\begin{pmatrix}1\!\cdot\!2.5+0.5\!\cdot\!1\\ -0.5\!\cdot\!2.5+1\!\cdot\!1\end{pmatrix}
+=\boxed{\begin{pmatrix}3\\-0.25\end{pmatrix}}
 $$
 
-损失 $L=\tfrac12\big((0-2.5)^2+(1-(-1.25))^2\big)=\tfrac12(6.25+5.0625)=\mathbf{5.65625}$。
+损失 $L=\tfrac12\big((0-3)^2+(1-(-0.25))^2\big)=\tfrac12(9+1.5625)=\mathbf{5.28125}$。
 
 **(2) 反向传播（学习率 η=0.1）**
 
-设 $\delta^{(2)}=\partial L/\partial \hat y=\hat y - y=(2.5,\ -2.25)^{\!\top}$。
+设 $\delta^{(2)}=\partial L/\partial \hat y=\hat y - y=(3,\ -1.25)^{\!\top}$。
 
 - 第 2 层：
   $$
   \frac{\partial L}{\partial k_2}=\delta^{(2)} h^{\!\top}
-  =\begin{pmatrix}2.5\\-2.25\end{pmatrix}(2.5\ 0)
-  =\begin{pmatrix}6.25 & 0\\ -5.625 & 0\end{pmatrix},\quad
-  \frac{\partial L}{\partial b_2}=\delta^{(2)}=\begin{pmatrix}2.5\\-2.25\end{pmatrix}
+  =\begin{pmatrix}3\\-1.25\end{pmatrix}(2.5\ 1)
+  =\begin{pmatrix}7.5 & 3\\ -3.125 & -1.25\end{pmatrix},\quad
+  \frac{\partial L}{\partial b_2}=\delta^{(2)}=\begin{pmatrix}3\\-1.25\end{pmatrix}
   $$
 
 - 回传到 $h$：$\partial L/\partial h=k_2^{\!\top}\delta^{(2)}
-  =\begin{pmatrix}1 & -0.5\\ 0.5 & 1\end{pmatrix}\!\begin{pmatrix}2.5\\-2.25\end{pmatrix}
-  =\begin{pmatrix}2.5+1.125\\ 1.25-2.25\end{pmatrix}
-  =\begin{pmatrix}3.625\\-1\end{pmatrix}$
+  =\begin{pmatrix}1 & -0.5\\ 0.5 & 1\end{pmatrix}\!\begin{pmatrix}3\\-1.25\end{pmatrix}
+  =\begin{pmatrix}3+0.625\\ 1.5-1.25\end{pmatrix}
+  =\begin{pmatrix}3.625\\0.25\end{pmatrix}$
 
-- 经过 ReLU：$z^{(1)}=(2.5,-2)$，导数 $(1,0)$，故 $\delta^{(1)}=\begin{pmatrix}3.625\\0\end{pmatrix}$。
+- 经过 ReLU：$z^{(1)}=(2.5,1)$ 两个分量都 > 0，导数 $(1,1)$，故 $\delta^{(1)}=\begin{pmatrix}3.625\\0.25\end{pmatrix}$。
 
 - 第 1 层：
   $$
   \frac{\partial L}{\partial k_1}=\delta^{(1)} x^{\!\top}
-  =\begin{pmatrix}3.625\\0\end{pmatrix}(1\ -2)
-  =\begin{pmatrix}3.625 & -7.25\\ 0 & 0\end{pmatrix},\quad
-  \frac{\partial L}{\partial b_1}=\begin{pmatrix}3.625\\0\end{pmatrix}
+  =\begin{pmatrix}3.625\\0.25\end{pmatrix}(1\ -2)
+  =\begin{pmatrix}3.625 & -7.25\\ 0.25 & -0.5\end{pmatrix},\quad
+  \frac{\partial L}{\partial b_1}=\begin{pmatrix}3.625\\0.25\end{pmatrix}
   $$
 
 **参数更新**（$\theta\leftarrow\theta-\eta\nabla_\theta L$）：
 
 $$
-k_1^{\text{new}}=\begin{pmatrix}0.5 & -1\\0 & 1\end{pmatrix}-0.1\begin{pmatrix}3.625 & -7.25\\0 & 0\end{pmatrix}
-=\boxed{\begin{pmatrix}0.1375 & -0.275\\ 0 & 1\end{pmatrix}}
+k_1^{\text{new}}=\begin{pmatrix}0.5 & -1\\1 & 0\end{pmatrix}-0.1\begin{pmatrix}3.625 & -7.25\\0.25 & -0.5\end{pmatrix}
+=\boxed{\begin{pmatrix}0.1375 & -0.275\\ 0.975 & 0.05\end{pmatrix}}
 $$
 
 $$
-b_1^{\text{new}}=\begin{pmatrix}-0.3625\\0\end{pmatrix}
+b_1^{\text{new}}=\begin{pmatrix}-0.3625\\-0.025\end{pmatrix}
 $$
 
 $$
-k_2^{\text{new}}=\begin{pmatrix}1 & 0.5\\ -0.5 & 1\end{pmatrix}-0.1\begin{pmatrix}6.25 & 0\\ -5.625 & 0\end{pmatrix}
-=\boxed{\begin{pmatrix}0.375 & 0.5\\ 0.0625 & 1\end{pmatrix}}
+k_2^{\text{new}}=\begin{pmatrix}1 & 0.5\\ -0.5 & 1\end{pmatrix}-0.1\begin{pmatrix}7.5 & 3\\ -3.125 & -1.25\end{pmatrix}
+=\boxed{\begin{pmatrix}0.25 & 0.2\\ -0.1875 & 1.125\end{pmatrix}}
 $$
 
 $$
-b_2^{\text{new}}=\begin{pmatrix}0\\0\end{pmatrix}-0.1\begin{pmatrix}2.5\\-2.25\end{pmatrix}=\begin{pmatrix}-0.25\\0.225\end{pmatrix}
+b_2^{\text{new}}=\begin{pmatrix}0\\0\end{pmatrix}-0.1\begin{pmatrix}3\\-1.25\end{pmatrix}=\begin{pmatrix}-0.3\\0.125\end{pmatrix}
 $$
 
 ---
