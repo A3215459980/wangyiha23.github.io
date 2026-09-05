@@ -258,61 +258,61 @@ AI 任务可分为推理任务和训练任务。推理任务包括云检测、�
 
 ## 参考文献与调研资料
 
-[1] A Comprehensive Survey on Orbital Edge Computing: Systems, Applications, and Algorithms.
+[1] Yin Z, Wu C, Guo C, Li Y, Xu M, Gao W, Chi C. A comprehensive survey of orbital edge computing: Systems, applications, and algorithms[J]. Chinese Journal of Aeronautics, 2025. DOI: 10.1016/j.cja.2024.11.026.
 
-[2] Orbital Edge Computing: Nanosatellite Constellations as a New Class of Computer System.
+[2] Denby B, Lucia B. Orbital Edge Computing: Nanosatellite Constellations as a New Class of Computer System[C]// Proceedings of the Twenty-Fifth International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS '20). ACM, 2020: 939-954. DOI: 10.1145/3373376.3378473.
 
-[3] Advancing Earth Observation: A Survey on AI-Powered Image Processing in Satellites.
+[3] Duggan A, Andrade B B, Afli H. Advancing earth observation: A survey on AI-powered image processing in satellites[J]. European Journal of Remote Sensing, 2025, 58(1): 2567921. DOI: 10.1080/22797254.2025.2567921.
 
-[4] Ground-Assisted Federated Learning in LEO Satellite Constellations.
+[4] Razmi N, Matthiesen B, Dekorsy A, Popovski P. Ground-Assisted Federated Learning in LEO Satellite Constellations[J]. IEEE Wireless Communications Letters, 2022, 11(4): 717-721. DOI: 10.1109/LWC.2022.3141120.
 
-[5] FedSN: A Novel Federated Learning Framework over LEO Satellite Networks.
+[5] Lin Z, Chen Z, Fang Z, Chen X, Wang X, Gao Y. FedSN: A Federated Learning Framework over Heterogeneous LEO Satellite Networks[J]. IEEE Transactions on Mobile Computing, 2025, 24(3): 1293-1307. DOI: 10.1109/TMC.2024.3481275.
 
-[6] Satellite Federated Edge Learning: Architecture Design and Convergence Analysis.
+[6] Shi Y, Zeng L, Zhu J, Zhou Y, Jiang C, Letaief K B. Satellite Federated Edge Learning: Architecture Design and Convergence Analysis[J]. IEEE Transactions on Wireless Communications, 2024, 23(10): 15212-15229. DOI: 10.1109/TWC.2024.3427377.
 
-[7] LEOEdge: A Satellite-Ground Cooperation Platform for the AI Inference in Large LEO Constellation.
+[7] Yao S, Lin Y, Wang M, Xu K, Xu M, Xu C, Zhang H. LEOEdge: A Satellite-Ground Cooperation Platform for the AI Inference in Large LEO Constellation[J]. IEEE Journal on Selected Areas in Communications, 2025, 43(1): 36-50. DOI: 10.1109/JSAC.2024.3460083.
 
-[8] A Collaborative Inference Algorithm in Low-Earth-Orbit Satellite Network for UAV / COIN-LEO.
+[8] Xu Z, Zhang P, Li C, Zhu H, Xu G, Sun C. A Collaborative Inference Algorithm in Low-Earth-Orbit Satellite Network for Unmanned Aerial Vehicle[J]. Drones, 2023, 7(9): 575. DOI: 10.3390/drones7090575.
 
-[9] Communication-Efficient Collaborative LLM Inference over LEO Satellite Networks.
+[9] Zhang S, Wu W, Li L, Wang Y, Shen X. Communication-Efficient Collaborative LLM Inference over LEO Satellite Networks[J]. CoRR, 2026, abs/2604.04654. DOI: 10.48550/arXiv.2604.04654.
 
-[10] Deep Neural Network-Based Receiver for Next-Generation LEO Satellite Communications.
+[10] Zhang Y, Wang Z, Huang Y, Ren J, Yin Y, Liu Y, Pedersen G F, Shen M. Deep Neural Network-Based Receiver for Next-Generation LEO Satellite Communications[J]. IEEE Access, 2020, 8: 222109-222116.
 
-[11] A Transmission Efficiency Evaluation Method of Adaptive Coding Modulation for Ka-Band Data-Transmission of LEO EO Satellites.
+[11] Wang Z, Lu F, Wang D, Zhang X, Li J, Li J. A Transmission Efficiency Evaluation Method of Adaptive Coding Modulation for Ka-Band Data-Transmission of LEO EO Satellites[J]. Sensors, 2022, 22(14): 5423. DOI: 10.3390/s22145423.
 
-[12] Deep Joint Source-Channel Coding for Wireless Image Transmission.
+[12] Bourtsoulatze E, Kurka D B, Gunduz D. Deep Joint Source-Channel Coding for Wireless Image Transmission[J]. IEEE Transactions on Cognitive Communications and Networking, 2019, 5(3): 567-579. DOI: 10.1109/TCCN.2019.2919300.
 
-[13] Deep Learning Enabled Semantic Communication Systems.
+[13] Xie H, Qin Z, Li G Y, Juang B H. Deep Learning Enabled Semantic Communication Systems[J]. IEEE Transactions on Signal Processing, 2021, 69: 2663-2675. DOI: 10.1109/TSP.2021.3071210.
 
-[14] Wireless Image Transmission Using Deep Source Channel Coding With Attention Modules.
+[14] Xu J, Ai B, Chen W, Yang A, Sun P, Rodrigues M. Wireless Image Transmission Using Deep Source Channel Coding With Attention Modules[J]. IEEE Transactions on Circuits and Systems for Video Technology, 2022, 32(4): 2315-2328. DOI: 10.1109/TCSVT.2021.3082521.
 
-[15] Nonlinear Transform Source-Channel Coding for Semantic Communications.
+[15] Dai J, Wang S, Tan K, Si Z, Qin X, Niu K, Zhang P. Nonlinear Transform Source-Channel Coding for Semantic Communications[J]. IEEE Journal on Selected Areas in Communications, 2022, 40(8): 2300-2316. DOI: 10.1109/JSAC.2022.3180802.
 
-[16] SwinJSCC: Taming Swin Transformer for Deep Joint Source-Channel Coding.
+[16] Yang K, Wang S, Dai J, Qin X, Niu K, Zhang P. SwinJSCC: Taming Swin Transformer for Deep Joint Source-Channel Coding[J]. IEEE Transactions on Cognitive Communications and Networking, 2025, 11(1). DOI: 10.1109/TCCN.2024.3424842.
 
-[17] Doppler-Adaptive Digital Semantic Communication for Low Earth Orbit Satellite Systems.
+[17] Seon J, Lee S, Kim S H, Sun Y G, Seo H, Kim D I, Kim J Y. Doppler-Adaptive Digital Semantic Communication for Low Earth Orbit Satellite Systems[J]. IEEE Internet of Things Journal, 2025, 12(24): 52900-52912. DOI: 10.1109/JIOT.2025.3614234.
 
-[18] sDMCM: A Semantic Digital Modulation Constellation Mapping Scheme for Semantic Communication.
+[18] Teng L, An W, Dong C, Xu X. sDMCM: A Semantic Digital Modulation Constellation Mapping Scheme for Semantic Communication[J]. IEEE Internet of Things Journal, 2025, 12(12): 20885-20901. DOI: 10.1109/JIOT.2025.3545667.
 
-[19] 2.65 Gbps Downlink Communications With Polarization Multiplexing in X-Band for Small Earth Observation Satellite.
+[19] Kaneko T, et al. 2.65 Gbps Downlink Communications With Polarization Multiplexing in X-Band for Small Earth Observation Satellite[J]. IEICE Transactions on Communications, 2021, E104-B(1). DOI: 10.1587/transcom.2019EBN0009.
 
-[20] Task Offloading With Service Migration for Satellite Edge Computing.
+[20] Wu H, Yang X, Bu Z. Task Offloading With Service Migration for Satellite Edge Computing: A Deep Reinforcement Learning Approach[J]. IEEE Access, 2024, 12: 25844-25856. DOI: 10.1109/ACCESS.2024.3367128.
 
-[21] Komet: A Serverless Platform for Low-Earth Orbit Edge Services.
+[21] Pfandzelter T, Bermbach D. Komet: A Serverless Platform for Low-Earth Orbit Edge Services[C]// Proceedings of the 2024 ACM Symposium on Cloud Computing (SoCC '24). ACM, 2024: 866-882. DOI: 10.1145/3698038.3698517.
 
-[22] Adaptive Service Migration for Satellite Edge Computing via DRL.
+[22] Zhao L, Guo L, Ni S, Qian W, Lu K, Xie Y, Zhou J. Adaptive Service Migration for Satellite Edge Computing via Deep Reinforcement Learning[J]. Electronics, 2025, 14(21): 4330. DOI: 10.3390/electronics14214330.
 
-[23] Inter-Satellite Links-Enabled Cooperative Edge Computing in Satellite-Terrestrial Networks.
+[23] Shang B, Li C, Ma J, Fan P. Inter-Satellite Links-Enabled Cooperative Edge Computing in Satellite-Terrestrial Networks[J]. IEEE Transactions on Wireless Communications, 2026, 25: 1223-1239. DOI: 10.1109/TWC.2025.3590005.
 
-[24] Joint Task Offloading and Power Allocation for Satellite Edge Computing Networks.
+[24] Li Y, Zhu S, Xiong T, Li Y, Su Q, Dai J. Joint Task Offloading and Power Allocation for Satellite Edge Computing Networks[J]. Sensors, 2025, 25(9): 2892. DOI: 10.3390/s25092892.
 
-[25] Graph-Aware Temporal Encoder-Based Service Migration and Resource Allocation.
+[25] Wang H, Du J, Jiang C, Wang J, Debbah M, Han Z. Graph-Aware Temporal Encoder-Based Service Migration and Resource Allocation in Satellite Networks[J]. IEEE Transactions on Wireless Communications, 2026, 25: 8260-8276. DOI: 10.1109/TWC.2025.3636875.
 
-[26] Orbit-aware task scheduling in satellite edge computing.
+[26] Magliarisi D, Casalicchio E, Salvatore V. Orbit-Aware Task Scheduling in Satellite Edge Computing[J]. Cluster Computing, 2025, 28: 16. DOI: 10.1007/s10586-025-05663-9.
 
-[27] Decentralized Observation Allocation for a Large-Scale Constellation.
+[27] Parjan S, Chien S A. Decentralized Observation Allocation for a Large-Scale Constellation[J]. Journal of Aerospace Information Systems, 2023, 20(8): 447-461. DOI: 10.2514/1.I011215.
 
-[28] Autonomous Decision-Making for Large Satellite Constellations.
+[28] Juan Oliver C J, Messina V, Dolan S, Golkar A. Autonomous Decision-Making for Large Satellite Constellations: A Multi-Agent Reinforcement Learning Approach to Space Situational Awareness in Partially Observable Dynamic Environments[C]// 11th European Conference for Aeronautics and Space Sciences (EUCASS). 2025. DOI: 10.13009/EUCASS2025-248.
 
-[29] Task allocation strategies for cooperative task planning of multi-autonomous satellite constellation.
+[29] Yao F, Li J, Chen Y, Chu X, Zhao B. Task Allocation Strategies for Cooperative Task Planning of Multi-Autonomous Satellite Constellation[J]. Advances in Space Research, 2019, 63: 1073-1084. DOI: 10.1016/j.asr.2018.10.002.
 
